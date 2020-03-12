@@ -79,7 +79,7 @@ void add_history(char *c, int exit){
 void clear_history(void){
 	int elements = elementsAdded < MAXHISTORY ? elementsAdded : MAXHISTORY;
 	for(int i=0; i < elements; i++){
-		*history[i]->cmd = '\0';
+		history[i]->cmd = '\0';
 		history[i]->exitStatus = -1;
 		free(history[i]->cmd);
 		free(history[i]);
