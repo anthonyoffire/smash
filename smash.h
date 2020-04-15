@@ -7,5 +7,7 @@
 #ifndef SMASH
 #define SMASH
 #define MAXLINE 4096
+int executeExternalCommand(char*[]);
 int executeCommand(char*);
+int printCwd(void);
 #endif

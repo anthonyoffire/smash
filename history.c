@@ -38,49 +38,43 @@ void add_history(char *c, int exit){
 	//Calculate index of last element in history
 	int lastIndex = elementsAdded < MAXHISTORY ? elementsAdded - 1 : MAXHISTORY - 1;
 	
-	//If list is empty or command differs from previous command
-	if(lastIndex == -1 
-		|| strcmp(history[lastIndex]->cmd, c) != 0){
 
-		//If list is full
-		if(lastIndex == MAXHISTORY - 1){
+	//If list is full
+	if(lastIndex == MAXHISTORY - 1){
 			
-			//save pointer to first cmd's mem loc
-			char* tmp = history[0]->cmd;
+		//save pointer to first cmd's mem loc
+		char* tmp = history[0]->cmd;
 			
-			//move elements and pointers from history[1-last] to
-			//history[0-second to last]
-			for(int i=0; i<MAXHISTORY-1; i++){
-				history[i]->cmd = history[i+1]->cmd;
-				history[i]->exitStatus = history[i+1]->exitStatus;
-			}
-			//assign original malloc'd mem from history[0] to
-			//history[MAXHISTORY-1]
-			history[lastIndex]->cmd = tmp;
-			
-			//re-initialize h[last]->cmd to '\0'
-			memset(history[lastIndex]->cmd, '\0', MAXLINE);
+		//move elements and pointers from history[1-last] to
+		//history[0-second to last]
+		for(int i=0; i<MAXHISTORY-1; i++){
+			history[i]->cmd = history[i+1]->cmd;
+			history[i]->exitStatus = history[i+1]->exitStatus;
 		}
-		//if lastIndex is not in the last spot, increment it
-		if(lastIndex < 9){
-			lastIndex++;			
-		}
-		//add new cmd to h[lastIndex]
-		strncpy(history[lastIndex]->cmd, c, strlen(c));
-		history[lastIndex]->exitStatus = exit;
-		//increment elementsAdded
-		elementsAdded++;
+		//assign original malloc'd mem from history[0] to
+		//history[MAXHISTORY-1]
+		history[lastIndex]->cmd = tmp;
+		
+		//re-initialize h[last]->cmd to '\0'
+		memset(history[lastIndex]->cmd, '\0', MAXLINE);
 	}
+	//if lastIndex is not in the last spot, increment it
+	if(lastIndex < 9){
+		lastIndex++;			
+	}
+	//add new cmd to h[lastIndex]
+	if(strcmp(c, "") != 0)
+	strncpy(history[lastIndex]->cmd, c, strlen(c));
+	history[lastIndex]->exitStatus = exit;
+	//increment elementsAdded
+	elementsAdded++;
 }
 
 //--------------------------------------------------------------
 //clear_history: frees all malloc'd memory in history
 //--------------------------------------------------------------
 void clear_history(void){
-	int elements = elementsAdded < MAXHISTORY ? elementsAdded : MAXHISTORY;
-	for(int i=0; i < elements; i++){
-		*history[i]->cmd = '\0';
-		history[i]->exitStatus = -1;
+	for(int i=0; i < MAXHISTORY; i++){
 		free(history[i]->cmd);
 		free(history[i]);
 	}
@@ -91,7 +85,7 @@ void clear_history(void){
 void print_history(int firstSequenceNumber){
 	//for length of history array unless you hit an empty element
 	for(int i = 0; i < MAXHISTORY &&
-			strcmp(history[i]->cmd, "") != 0; i++){
+			history[i]->exitStatus != -1; i++){
 		printf("%d [%d] %s\n",
 				firstSequenceNumber++, //increment number after print
 				history[i]->exitStatus,

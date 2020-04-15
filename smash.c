@@ -8,12 +8,23 @@
 #include <string.h>
 #include "smash.h"
 #include "history.h"
+#include <signal.h>
 
 int main(int argc, char **argv){
+	
+	//Disable SIGINT
+	signal(SIGINT, SIG_IGN);
+	//Define variables
 	char bfr[MAXLINE];
 	int exitStatus;
-	init_history();//Initialize history
+
+	//Initalize history storage
+	init_history();
+	
+	//Output inital prompt
 	fputs("$ ", stderr);
+
+	//Loop for input
 	while(fgets(bfr, MAXLINE, stdin) != NULL){
 		bfr[strlen(bfr) - 1] = '\0';
 		if(strcmp(bfr, "") != 0){
@@ -22,6 +33,9 @@ int main(int argc, char **argv){
 		}
 		fputs("$ ", stderr);
 	}
-	clear_history();//Free malloc'd memory
+	
+	//Free malloc'd memory
+	clear_history();
+	
 	return 0;
 }

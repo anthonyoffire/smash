@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include "history.h"
+#include <sys/wait.h>
+
 //-------------------------------------------------------
 //executeCommand : takes string of command and arguments, 
 //				   tries to run argument, returns exit
@@ -17,52 +19,106 @@
 //-------------------------------------------------------
 extern int elementsAdded;
 int executeCommand(char *str){
+	
+	//Copy str to avoid manipulating the original copy
 	char str2[MAXLINE];
 	strncpy(str2, str, MAXLINE);
+
 	char* token; //holds each space-separated token
 	token = strtok(str2, " ");
 	int i = 0;
-	char* args[2047];//max # tokens 'str' can contain = 2047
-	while(token != NULL){//get tokens
+	char* args[2047];//max # tokens 'str' can contain = 2046
+	
+	//If there are no tokens, return normally
+	if(token == NULL){
+		return 0;
+	}
+
+	//Get all tokens and place them in *args[]
+	while(token != NULL){
 		args[i] = token;
 		i++;
 		token = strtok(NULL, " ");
 	}
+
+	//Place NULL after last element
+	args[i] = NULL;
 	
-	if(strcmp(args[0],"exit") == 0){//handle exit command
+	//Check whether args[0] matches any internal commands
+	//exit
+	if(strcmp(args[0],"exit") == 0){
 		clear_history();//Free malloc'd memory
 		exit(0);//Exit normally
 	}
-	if(strcmp(args[0], "history") == 0){//handle history command
-		print_history(elementsAdded < MAXHISTORY ?//determine the command #
-					  1 : elementsAdded - 9);
+	//history
+	if(strcmp(args[0], "history") == 0){
+		//run print_history(initial command # to list)
+		print_history(elementsAdded < MAXHISTORY ? 1 : elementsAdded - 9);
 	}
+	//cd
 	else if(strcmp(args[0],"cd") == 0){
-		if(i>1){//cd command: if i==1 do nothing
-			char dir[FILENAME_MAX];
+		if(i>1){//cd command: if i==1, command has no arguments; do nothing
 			if(chdir(args[1]) == 0){
-				
-				//char dir[FILENAME_MAX];
-				if(getcwd(dir, sizeof(dir)) != NULL){
-					printf("%s\n", dir);//print new dir
-				}else{
-					perror("getcwd() error!");
-					return 1;//Exit status 1
-				}
-			}else{//chdir not successful
+				//Chdir successful, return printCwd
+				return printCwd();
+			}else{
+				//Chdir failed, print error, cwd, return 1
 				perror(args[1]);
-				if(getcwd(dir, sizeof(dir)) != NULL)
-					printf("%s\n", dir);
-				else
-					perror("getcwd() error!");
+				printCwd();
 				return 1;//Exit status 1
 			}
 		}
-	}else{	//Command not found
-		for(int j = 0; j<i; j++){
-			printf("[%d] %s\n", j, args[j]);
-		}
-		return 127;//Exit status 127
+	
+	}else{
+		//Internal command not found, search for external command
+		return executeExternalCommand(args);
 	}
 	return 0;
+}
+//printCwd: tries to print current working dir
+//			returns 0 on success, 1 on failure
+int printCwd(){
+	
+	//Holder for file path
+	char dir[FILENAME_MAX];
+	
+	//If cwd can be retrieved, print and return normally
+	if(getcwd(dir, sizeof(dir)) != NULL){
+		printf("%s\n", dir);
+		return 0;
+	}else{
+		//getcwd error
+		perror("getcwd() error!");
+		return 1;
+	}
+}
+//executeExternalCommand:	flush all streams,
+//							fork and run external command,
+//							return exit status
+int executeExternalCommand(char *args[]){
+	
+	//Flush all open streams
+	fflush(stdout);
+	fflush(stderr);
+	fflush(stdin);
+	
+	//Fork
+	int pid = fork();
+	if(pid == 0){
+		//Child, release malloc'd memory then run execvp
+		clear_history();
+		execvp(args[0], args);
+		//External program not found
+		perror(args[0]);
+		exit(1);
+	}else if(pid > 0){
+		//Parent, wait for child and get exit status
+		int status;
+		wait(&status);
+		return WEXITSTATUS(status);
+	}else{
+		//Error forking
+		perror("Fork failed!");
+		return 1;
+	}
 }
