@@ -8,9 +8,11 @@
 #ifndef HISTORY
 #define HISTORY
 
-#define MAXHISTORY 10
 #include "smash.h"
-struct Cmd{//struct to hold commands
+#define MAXHISTORY 10
+
+//Struct to hold commands
+struct Cmd{
 	char *cmd;
 	int exitStatus;
 };
