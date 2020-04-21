@@ -93,9 +93,8 @@ int printCwd(){
 	}
 }
 //------------------------------------------------------------
-//executeExternalCommand:	flush all streams,
-//							fork and run external command,
-//							return exit status
+//executeExternalCommand: fork and run external command,
+//			  return exit status
 //------------------------------------------------------------
 int executeExternalCommand(char *args[]){
 	
