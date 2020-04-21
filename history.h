@@ -8,17 +8,16 @@
 #ifndef HISTORY
 #define HISTORY
 
-#include "smash.h"
 #define MAXHISTORY 10
-
-//Struct to hold commands
-struct Cmd{
+#include "smash.h"
+struct Cmd{//struct to hold commands
 	char *cmd;
 	int exitStatus;
 };
-void init_history(void); //Builds data structures for recording cmd history
+void init_history(int); //Builds data structures for recording cmd history
 void add_history(char *cmd, int exitStatus); //Adds an entry to history
 void clear_history(void); //Frees all malloc'd memory in history
-void print_history(int firstSequenceNumber); //Prints history to stdout
-
+void print_history(void); //Prints history to stdout
+void inc_writeIndex(void); //Increments circ arr index
+void inc_readIndex(void); //Increments circ arr index
 #endif

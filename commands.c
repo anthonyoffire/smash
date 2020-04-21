@@ -27,7 +27,7 @@ int executeCommand(char *str){
 	char* token; //holds each space-separated token
 	token = strtok(str2, " ");
 	int i = 0;
-	char* args[2047];//max # tokens 'str' can contain = 2046
+	char* args[MAXLINE/2];//max # tokens 'str' can contain = MAXLINE/2 - 1
 	
 	//If there are no tokens, return normally
 	if(token == NULL){
@@ -53,7 +53,7 @@ int executeCommand(char *str){
 	//history
 	if(strcmp(args[0], "history") == 0){
 		//run print_history(initial command # to list)
-		print_history(elementsAdded < MAXHISTORY ? 1 : elementsAdded - 9);
+		print_history();
 	}
 	//cd
 	else if(strcmp(args[0],"cd") == 0){
@@ -92,16 +92,16 @@ int printCwd(){
 		return 1;
 	}
 }
+//------------------------------------------------------------
 //executeExternalCommand:	flush all streams,
 //							fork and run external command,
 //							return exit status
+//------------------------------------------------------------
 int executeExternalCommand(char *args[]){
 	
 	//Flush all open streams
 	fflush(stdout);
 	fflush(stderr);
-	fflush(stdin);
-	
 	//Fork
 	int pid = fork();
 	if(pid == 0){
@@ -110,7 +110,7 @@ int executeExternalCommand(char *args[]){
 		execvp(args[0], args);
 		//External program not found
 		perror(args[0]);
-		exit(1);
+		exit(127);
 	}else if(pid > 0){
 		//Parent, wait for child and get exit status
 		int status;

@@ -37,4 +37,4 @@ $(EXE): $(OBJS)
 debug: CFLAGS += -g -O0
 debug: clean all
 clean:
-	rm -f $(OBJS) $(EXE) rules.d
+	rm -f $(OBJS) $(EXE) rules.d *~

@@ -18,9 +18,6 @@ int main(int argc, char **argv){
 	char bfr[MAXLINE];
 	int exitStatus;
 
-	//Initalize history storage
-	init_history();
-	
 	//Output inital prompt
 	fputs("$ ", stderr);
 

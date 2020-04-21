@@ -3,71 +3,49 @@
 //
 //Author: Anthony Baird 3/9/20
 //--------------------------------------------------------------
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "history.h"
-int elementsAdded = 0;
+
+static int elementsAdded = 0;//Total elements added while running
+static int writeIndex = 0;//Write index for circular array
+static int readIndex = 0;//Read index for circular array
 static struct Cmd *history[MAXHISTORY];
+
 //--------------------------------------------------------------
-//init_history: allocates memory for and initializes elements
-//				of history array
+//init_history: allocates memory for Cmd structure at
+//				history[index], initializes exit status
 //--------------------------------------------------------------
-void init_history(void){
-	for(int i=0; i<MAXHISTORY; i++){
+void init_history(int index){
 		//allocate mem for structs
-		history[i] = malloc(sizeof(struct Cmd));
-		//allocate mem for char* inside structs
-		history[i]->cmd = malloc(MAXLINE);
+		history[index] = malloc(sizeof(struct Cmd));
 		//Initialize exit status
-		history[i]->exitStatus = -1;
-		//Initialize all of cmd to '\0'
-		memset(history[i]->cmd, '\0', MAXLINE);
-	}
+		history[index]->exitStatus = -1;
 }
+
 //--------------------------------------------------------------
-//add_history: adds a command to the history array
-//			   if full, removes first, moves elements,
-//			   and adds new entry at the end
-//			   does not add command to history if it is identical
-//			   to the previous command
+//add_history: adds a command to the circular history array.
+//			   if full, frees next spot and then replaces it
 //--------------------------------------------------------------
 void add_history(char *c, int exit){
 
-	//Calculate index of last element in history
-	int lastIndex = elementsAdded < MAXHISTORY ? elementsAdded - 1 : MAXHISTORY - 1;
+	//If list is full, free old cmd, clear old exit status
+	if(elementsAdded >= MAXHISTORY){
+		free(history[writeIndex]->cmd);
+		history[writeIndex]->exitStatus = -1;
+	}else{
+		//If list is not full, initialize history[writeIndex]
+		init_history(writeIndex);
+	}
+	//add new cmd to history[writeIndex]
+	history[writeIndex]->cmd = strndup(c, strlen(c));
+	history[writeIndex]->exitStatus = exit;
 	
-
-	//If list is full
-	if(lastIndex == MAXHISTORY - 1){
-			
-		//save pointer to first cmd's mem loc
-		char* tmp = history[0]->cmd;
-			
-		//move elements and pointers from history[1-last] to
-		//history[0-second to last]
-		for(int i=0; i<MAXHISTORY-1; i++){
-			history[i]->cmd = history[i+1]->cmd;
-			history[i]->exitStatus = history[i+1]->exitStatus;
-		}
-		//assign original malloc'd mem from history[0] to
-		//history[MAXHISTORY-1]
-		history[lastIndex]->cmd = tmp;
-		
-		//re-initialize h[last]->cmd to '\0'
-		memset(history[lastIndex]->cmd, '\0', MAXLINE);
-	}
-	//if lastIndex is not in the last spot, increment it
-	if(lastIndex < 9){
-		lastIndex++;			
-	}
-	//add new cmd to h[lastIndex]
-	if(strcmp(c, "") != 0)
-	strncpy(history[lastIndex]->cmd, c, strlen(c));
-	history[lastIndex]->exitStatus = exit;
-	//increment elementsAdded
+	//increment elementsAdded and writeIndex
 	elementsAdded++;
+	inc_writeIndex();
 }
 
 //--------------------------------------------------------------
@@ -75,20 +53,54 @@ void add_history(char *c, int exit){
 //--------------------------------------------------------------
 void clear_history(void){
 	for(int i=0; i < MAXHISTORY; i++){
-		free(history[i]->cmd);
-		free(history[i]);
+		if(history[i] != NULL){
+			free(history[i]->cmd);
+			free(history[i]);
+		}
 	}
 }
+
 //--------------------------------------------------------------
 //print_history: prints the items in history to stdout
 //--------------------------------------------------------------
-void print_history(int firstSequenceNumber){
+void print_history(void){
+	
+	//Compute first commandNumber for printing
+	int commandNumber = elementsAdded < MAXHISTORY ? 
+								1 : elementsAdded - 1;
+	//Save initial read index
+	int initReadIdx = readIndex;
+
 	//for length of history array unless you hit an empty element
 	for(int i = 0; i < MAXHISTORY &&
-			history[i]->exitStatus != -1; i++){
+			history[readIndex] != NULL; i++){
 		printf("%d [%d] %s\n",
-				firstSequenceNumber++, //increment number after print
-				history[i]->exitStatus,
-				history[i]->cmd);
+				commandNumber++, //increment number after print
+				history[readIndex]->exitStatus,
+				history[readIndex]->cmd);
+		inc_readIndex();
 	}
+	//Reset readIndex to original value
+	readIndex = initReadIdx;
+}
+//---------------------------------------------------------------
+//inc_writeIndex: increments the write index for circular history 
+//				  array.
+//---------------------------------------------------------------
+void inc_writeIndex(void){
+	if(writeIndex == MAXHISTORY - 1)
+		writeIndex = 0;
+	else
+		writeIndex++;
+}
+
+//---------------------------------------------------------------
+//inc_readIndex: increments the read index for circular history
+//               array
+//---------------------------------------------------------------
+void inc_readIndex(void){
+	if(readIndex == MAXHISTORY - 1)
+		readIndex = 0;
+	else
+		readIndex++;
 }
