@@ -67,7 +67,7 @@ void print_history(void){
 	
 	//Compute first commandNumber for printing
 	int commandNumber = elementsAdded < MAXHISTORY ? 
-								1 : elementsAdded - 1;
+	  			1 : elementsAdded - 9;
 	//Save initial read index
 	int initReadIdx = readIndex;
 
