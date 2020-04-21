@@ -17,6 +17,7 @@
 //				   tries to run argument, returns exit
 //				   status
 //-------------------------------------------------------
+extern int elementsAdded;
 int executeCommand(char *str){
 	
 	//Copy str to avoid manipulating the original copy
@@ -98,9 +99,6 @@ int printCwd(){
 //------------------------------------------------------------
 int executeExternalCommand(char *args[]){
 	
-	//Flush all open streams
-	fflush(stdout);
-	fflush(stderr);
 	//Fork
 	int pid = fork();
 	if(pid == 0){

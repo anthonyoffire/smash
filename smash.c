@@ -14,6 +14,9 @@ int main(int argc, char **argv){
 	
 	//Disable SIGINT
 	signal(SIGINT, SIG_IGN);
+	//Disable buffering in stdout stream
+	setvbuf(stdout,NULL,_IONBF,0);
+	setvbuf(stderr,NULL,_IONBF,0);
 	//Define variables
 	char bfr[MAXLINE];
 	int exitStatus;
