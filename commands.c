@@ -17,7 +17,6 @@
 //				   tries to run argument, returns exit
 //				   status
 //-------------------------------------------------------
-extern int elementsAdded;
 int executeCommand(char *str){
 	
 	//Copy str to avoid manipulating the original copy
