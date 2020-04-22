@@ -12,11 +12,10 @@
 #include "history.h"
 #include <sys/wait.h>
 
-//-------------------------------------------------------
+//--------------------------------------------------------------------
 //executeCommand : takes string of command and arguments, 
-//				   tries to run argument, returns exit
-//				   status
-//-------------------------------------------------------
+//		   tries to run argument, returns exit status
+//--------------------------------------------------------------------
 extern int elementsAdded;
 int executeCommand(char *str){
 	
@@ -75,8 +74,10 @@ int executeCommand(char *str){
 	}
 	return 0;
 }
+//----------------------------------------------------------------------------
 //printCwd: tries to print current working dir
 //			returns 0 on success, 1 on failure
+//----------------------------------------------------------------------------
 int printCwd(){
 	
 	//Holder for file path
