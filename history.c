@@ -31,10 +31,10 @@ void init_history(int index){
 //--------------------------------------------------------------
 void add_history(char *c, int exit){
 
-	//If list is full, free old cmd, clear old exit status
+	//If list is full, free old cmd
 	if(elementsAdded >= MAXHISTORY){
 		free(history[writeIndex]->cmd);
-		history[writeIndex]->exitStatus = -1;
+		readIndex = nextIndex(readIndex);
 	}else{
 		//If list is not full, initialize history[writeIndex]
 		init_history(writeIndex);
@@ -73,18 +73,18 @@ void print_history(void){
 
 	//for length of history array unless you hit an empty element
 	for(int i = 0; i < MAXHISTORY &&
-			history[readIndex] != NULL; i++){
+			history[idx] != NULL; i++){
 		printf("%d [%d] %s\n",
 				commandNumber++, //increment number after print
 				history[idx]->exitStatus,
 				history[idx]->cmd);
-		idx = nextIndex(readIndex);
+		idx = nextIndex(idx);
 	}
 }
 //---------------------------------------------------------------
 //nextIndex: returns next index in circular history array
 //---------------------------------------------------------------
 int nextIndex(int i){
-	return ++i % MAXHISTORY;
+	return (i+1) % MAXHISTORY;
 }
 
