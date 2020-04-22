@@ -34,7 +34,6 @@ void add_history(char *c, int exit){
 	//If list is full, free old cmd, clear old exit status
 	if(elementsAdded >= MAXHISTORY){
 		free(history[writeIndex]->cmd);
-		history[writeIndex]->exitStatus = -1;
 	}else{
 		//If list is not full, initialize history[writeIndex]
 		init_history(writeIndex);
