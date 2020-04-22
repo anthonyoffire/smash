@@ -45,7 +45,7 @@ void add_history(char *c, int exit){
 	
 	//increment elementsAdded and writeIndex
 	elementsAdded++;
-	inc_writeIndex();
+	writeIndex = nextIndex(writeIndex);
 }
 
 //--------------------------------------------------------------
@@ -67,40 +67,24 @@ void print_history(void){
 	
 	//Compute first commandNumber for printing
 	int commandNumber = elementsAdded < MAXHISTORY ? 
-	  			1 : elementsAdded - 9;
+								1 : elementsAdded - 9;
 	//Save initial read index
-	int initReadIdx = readIndex;
+	int idx = readIndex;
 
 	//for length of history array unless you hit an empty element
 	for(int i = 0; i < MAXHISTORY &&
 			history[readIndex] != NULL; i++){
 		printf("%d [%d] %s\n",
 				commandNumber++, //increment number after print
-				history[readIndex]->exitStatus,
-				history[readIndex]->cmd);
-		inc_readIndex();
+				history[idx]->exitStatus,
+				history[idx]->cmd);
+		idx = nextIndex(readIndex);
 	}
-	//Reset readIndex to original value
-	readIndex = initReadIdx;
 }
 //---------------------------------------------------------------
-//inc_writeIndex: increments the write index for circular history 
-//				  array.
+//nextIndex: returns next index in circular history array
 //---------------------------------------------------------------
-void inc_writeIndex(void){
-	if(writeIndex == MAXHISTORY - 1)
-		writeIndex = 0;
-	else
-		writeIndex++;
+int nextIndex(int i){
+	return ++i % MAXHISTORY;
 }
 
-//---------------------------------------------------------------
-//inc_readIndex: increments the read index for circular history
-//               array
-//---------------------------------------------------------------
-void inc_readIndex(void){
-	if(readIndex == MAXHISTORY - 1)
-		readIndex = 0;
-	else
-		readIndex++;
-}

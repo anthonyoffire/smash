@@ -18,6 +18,5 @@ void init_history(int); //Builds data structures for recording cmd history
 void add_history(char *cmd, int exitStatus); //Adds an entry to history
 void clear_history(void); //Frees all malloc'd memory in history
 void print_history(void); //Prints history to stdout
-void inc_writeIndex(void); //Increments circ arr index
-void inc_readIndex(void); //Increments circ arr index
+int nextIndex(int); //Gets next index in circular history array
 #endif
